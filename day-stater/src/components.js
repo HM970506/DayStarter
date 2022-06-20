@@ -56,7 +56,6 @@ const Cloth=["민소매, 반팔, 반바지", "반팔, 얇은 셔츠, 면바지",
 "패딩, 코트, 목도리"];
 
 function Weather(){
-    const [temp, setTemp]=useState(0);
     //1.오늘 날짜의 평균온도를 가져옴
     //2.어제날짜의 평균온도와 비교하여 어제보다 더운지, 추운지 비교
     //3.해당 온도에 맞는 옷차림 추천
@@ -70,18 +69,14 @@ function Weather(){
         const lon = position.coords.longitude;
         const url= `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
         let Temp;
-
-        useEffect(()=>{
-            fetch(url).then((response)=>response.json()).then((data)=>{
+        fetch(url).then((response)=>response.json()).then((data)=>{
                 console.log(data.main);
                 let maxTemp=KtoC(data.main.temp_max);
                 let minTemp=KtoC(data.main.temp_min);
                 Temp = `${data.weather[0].main} / ${minTemp}℃ ~ ${maxTemp}℃`;
-        })},[]); 
+            })
 
-        return (
-            <>{Temp}</>
-        )
+        return Temp;
     }
     function onGeoError() {
         return ("Gps is off");
@@ -101,8 +96,13 @@ function Weather(){
         else if(tem>=5) return 6;
         else return 7;
     }
+    let output;
     
-    navigator.geolocation.getCurrentPosition(onGeoOk, onGeoError); //성공시 함수, 에러시 함수
+    useEffect(()=>{
+    output=navigator.geolocation.getCurrentPosition(onGeoOk, onGeoError); //성공시 함수, 에러시 함수
+    },[]); 
+    console.log(output);
+    return(<>{output}</>)
 
 }
 
