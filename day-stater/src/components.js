@@ -56,7 +56,7 @@ const Cloth=["민소매, 반팔, 반바지", "반팔, 얇은 셔츠, 면바지",
 "패딩, 코트, 목도리"];
 
 class DayWeather{
-    construct(temp, humidity, weather){
+    constructor(temp, humidity, weather){
         this.temp=temp;
         this.humidity=humidity;
         this.weather=weather;
@@ -80,20 +80,39 @@ function Weather(){
     //2.어제날짜의 평균온도와 비교하여 어제보다 더운지, 추운지 비교
     //3.해당 온도에 맞는 옷차림 추천
     //4.비가 오면 우산을 가져가는 것을 추천
-    const [weathers, setWeathers]=useState();
+    const [geo, setGeo]=useState("");
+    const [weathers, setWeathers]=useState("");
+    const [loading, setLoading] = useState(true);
 
-    /*useEffect(makeWeatherdiv(),[weathers]);
+    
+    useEffect(()=>{load()},[]); //load함수는 한번만 실행하여 geo를 변경
+    useEffect(()=>{
+        if(geo!=""){
+            getData().then((res)=>setWeathers(res));
+        }
+        },[geo]); //geo가 변경되면 해당 geo값으로 data를 가져와 weathers를 변경
+    useEffect(()=>{},[weathers])
+    //weathers가 바뀌었을 때 weatherdiv가 만들어진다
 
-    function makeWeatherdiv(){
+
+    function Weatherdiv(){
+        if(weathers=="") {return false;}
         const todayTemp=weathers[0].getTemp();
-        const gapTemp=weathers[1].getTemp()-weathers[0].getTemp();
+        const gapTemp=weathers[0].getTemp()-weathers[1].getTemp();
         const clothIndex=whatCloth(todayTemp);
-        const ment=`오늘 기온은 ${todayTemp}}도 입니다. ${Cloth[clothIndex]}을(를) 추천합니다.\n
-                  어제와 ${gapTemp}도 차이납니다.`;
+        const todaySky=weathers[0].getWeather();
+        const todayHumidity=weathers[0].getHumidity()-weathers[1].getHumidity();
 
-        return ment;
+        const ment1=`오늘 기온은 ${todayTemp}도 입니다. ${Cloth[clothIndex]}을(를) 추천합니다.`;
+        const ment2=gapTemp>0 ? `어제보다 ${gapTemp}도 덥습니다.`: `어제보다 ${-gapTemp}도 춥습니다.`;
+        const ment3=todaySky=="Rain" ? "\n우산을 챙기세요!" : "";
+        const ment4=todayHumidity>0 ? "어제보다 습합니다.": "어제보다 건조합니다.";
+
+        return (
+            <>{`${ment1}\n${ment2}\n${ment3}\n${ment4}`}</>
+        )
     }
-*/
+
     
     function whatCloth(tem){
         if(tem>=28) return 0;
@@ -109,33 +128,20 @@ function Weather(){
 
     const getWeather=async(url, now)=>{
         const data=await (await fetch(url)).json();
-        let day;
-        
-        now=="today" ? day=data : day=data.list[0];
+        let day=now=="today" ? data : data.list[0];
 
-        const temp= KtoC(day.main.feels_like);
+        const temp= KtoC(day.main.temp);
         const humidity=day.main.humidity;
         const weather=(day.weather)[0].main;
-
         return new DayWeather(temp, humidity, weather);
     }
 
     const onGeoOk=async(position)=> {
-   
-        const API_key="630b5303f9175771e71dd96d35fa650c";
+
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
-        const utc =  Math.floor(new Date().getTime() / 1000);
-        const start=utc-86400;
-        const end=start+3600;
-        const todayURL= `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_key}`;
-        const yesterURL=`http://history.openweathermap.org/data/2.5/history/city?lat=${lat}&lon=${lon}&type=hour&start=${start}&end=${end}&appid=${API_key}`;
-        const todayWeather = await getWeather(todayURL, "today");
-        const yesterdayWeather =  await getWeather(yesterURL, "yesterday");
-        const [loading, setLoading]=useState(false)
-        setWeathers([todayWeather, yesterdayWeather]);
-
-        
+        setGeo([lat, lon]);
+       
     }
     function onGeoError() {
         return ("Gps is off");
@@ -145,19 +151,30 @@ function Weather(){
         return (parseInt(tem)-273.15).toFixed(0);
     }
 
-    function load()
-    {
-        ()=>async()=>{
-            await navigator.geolocation.getCurrentPosition(onGeoOk, onGeoError);
-            setLoading(loading, true);
-        }
+    const getData = async()=>{
+        const API_key="630b5303f9175771e71dd96d35fa650c";
+        const utc =  Math.floor(new Date().getTime() / 1000);
+        const lat=geo[0];
+        const lon=geo[1];
+        const start=utc-86400;
+        const end=start+3600;
+        const todayURL= `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&lan=kr&appid=${API_key}`;
+        const yesterURL=`http://history.openweathermap.org/data/2.5/history/city?lat=${lat}&lon=${lon}&type=hour&start=${start}&end=${end}&appid=${API_key}`;
+        const todayWeather = await getWeather(todayURL, "today");
+        const yesterdayWeather =  await getWeather(yesterURL, "yesterday");
+
+        return [todayWeather, yesterdayWeather];
     }
-    useEffect(load(),[]);
-    //useEffect에 await를 겹쳐서 쓸 ㅅ 있나?
-    console.log(weathers);
+
+    const load =async()=> {
+        navigator.geolocation.getCurrentPosition(onGeoOk, onGeoError);
+        setLoading(false);
+    }
+
+
     return(
         <div>  
-            loading==true?(weather):()
+            {loading ?  "" : <Weatherdiv/>}
         </div>
 
     )
