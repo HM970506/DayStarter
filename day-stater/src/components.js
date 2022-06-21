@@ -55,38 +55,47 @@ const Cloth=["민소매, 반팔, 반바지", "반팔, 얇은 셔츠, 면바지",
 "자켓, 트렌치코트, 니트", "코트, 히트택, 니트",
 "패딩, 코트, 목도리"];
 
+class DayWeather{
+    construct(temp, humidity, weather){
+        this.temp=temp;
+        this.humidity=humidity;
+        this.weather=weather;
+    }
+
+    getTemp(){
+        return this.temp;
+    }
+
+    getHumidity(){
+        return this.humidity;
+    }
+
+    getWeather(){
+        return this.weather;
+    }
+}
+
 function Weather(){
     //1.오늘 날짜의 평균온도를 가져옴
     //2.어제날짜의 평균온도와 비교하여 어제보다 더운지, 추운지 비교
     //3.해당 온도에 맞는 옷차림 추천
-    //4.비가 올 확률이 있으면 우산을 가져가는 것을 추천
+    //4.비가 오면 우산을 가져가는 것을 추천
+    const [weathers, setWeathers]=useState();
 
+    /*useEffect(makeWeatherdiv(),[weathers]);
+
+    function makeWeatherdiv(){
+        const todayTemp=weathers[0].getTemp();
+        const gapTemp=weathers[1].getTemp()-weathers[0].getTemp();
+        const clothIndex=whatCloth(todayTemp);
+        const ment=`오늘 기온은 ${todayTemp}}도 입니다. ${Cloth[clothIndex]}을(를) 추천합니다.\n
+                  어제와 ${gapTemp}도 차이납니다.`;
+
+        return ment;
+    }
+*/
     
-    function onGeoOk(position) { //js가 geolocation 접속성공시 자동으로 주는 값
-   
-        const API_KEY="630b5303f9175771e71dd96d35fa650c";
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        const url= `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
-        let Temp;
-        fetch(url).then((response)=>response.json()).then((data)=>{
-                console.log(data.main);
-                let maxTemp=KtoC(data.main.temp_max);
-                let minTemp=KtoC(data.main.temp_min);
-                Temp = `${data.weather[0].main} / ${minTemp}℃ ~ ${maxTemp}℃`;
-            })
-
-        return Temp;
-    }
-    function onGeoError() {
-        return ("Gps is off");
-    }
-
-    function KtoC(tem){
-        return (parseInt(tem)-273.15).toFixed(0);
-    }
-
-    function WhatCloth(tem){
+    function whatCloth(tem){
         if(tem>=28) return 0;
         else if(tem>=23) return 1;
         else if(tem>=20) return 2;
@@ -96,15 +105,64 @@ function Weather(){
         else if(tem>=5) return 6;
         else return 7;
     }
-    let output;
-    
-    useEffect(()=>{
-    output=navigator.geolocation.getCurrentPosition(onGeoOk, onGeoError); //성공시 함수, 에러시 함수
-    },[]); 
-    console.log(output);
-    return(<>{output}</>)
 
+
+    const getWeather=async(url, now)=>{
+        const data=await (await fetch(url)).json();
+        let day;
+        
+        now=="today" ? day=data : day=data.list[0];
+
+        const temp= KtoC(day.main.feels_like);
+        const humidity=day.main.humidity;
+        const weather=(day.weather)[0].main;
+
+        return new DayWeather(temp, humidity, weather);
+    }
+
+    const onGeoOk=async(position)=> {
+   
+        const API_key="630b5303f9175771e71dd96d35fa650c";
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const utc =  Math.floor(new Date().getTime() / 1000);
+        const start=utc-86400;
+        const end=start+3600;
+        const todayURL= `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_key}`;
+        const yesterURL=`http://history.openweathermap.org/data/2.5/history/city?lat=${lat}&lon=${lon}&type=hour&start=${start}&end=${end}&appid=${API_key}`;
+        const todayWeather = await getWeather(todayURL, "today");
+        const yesterdayWeather =  await getWeather(yesterURL, "yesterday");
+        const [loading, setLoading]=useState(false)
+        setWeathers([todayWeather, yesterdayWeather]);
+
+        
+    }
+    function onGeoError() {
+        return ("Gps is off");
+    }
+
+    function KtoC(tem){
+        return (parseInt(tem)-273.15).toFixed(0);
+    }
+
+    function load()
+    {
+        ()=>async()=>{
+            await navigator.geolocation.getCurrentPosition(onGeoOk, onGeoError);
+            setLoading(loading, true);
+        }
+    }
+    useEffect(load(),[]);
+    //useEffect에 await를 겹쳐서 쓸 ㅅ 있나?
+    console.log(weathers);
+    return(
+        <div>  
+            loading==true?(weather):()
+        </div>
+
+    )
 }
+
 
 function Todolist(){
     //엔터키를 치면, 리스트에 해당 input 저장
