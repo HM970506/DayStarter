@@ -129,8 +129,7 @@ function Weather(){
     const getWeather=async(url, now)=>{
         const data=await (await fetch(url)).json();
         let day=now=="today" ? data : data.list[0];
-
-        const temp= KtoC(day.main.temp);
+        const temp= KtoC(day.main.temp_max); 
         const humidity=day.main.humidity;
         const weather=(day.weather)[0].main;
         return new DayWeather(temp, humidity, weather);
@@ -196,12 +195,50 @@ function Todolist(){
 
 
 function Subway(){
-    const API_KEY="4478437159303530313233626b70464b";
-    const gateId=4118; //나중에 역 이름 입력받아서 할 수 있게 하기
 
+    const [data, setData]=useState();
+    const [station, setStation]=useState();
+    const myStationName="노들";
+    const myStationId=1009000918;
+
+    const API_KEY="6c4e6c7763303530313130664d4b6b57";
+    const URL=`http://swopenAPI.seoul.go.kr/api/subway/${API_KEY}/json/realtimePosition/0/5/9호선`
     //1.해당 시간의 값을 가져옴
-    //2.update button을 누를 때마다 api를 새로 가져옴
-    return("subway");
+    //2.1분마다 api를 새로 가져옴
+
+    useEffect(()=>{getData()},[]);
+    const getData=async()=>{
+        const data=(await (await fetch(URL)).json()).realtimePositionList;
+        setData(data);
+    } //fetch로 data의 값을 1회만 수정
+
+    useEffect(()=>{if(data!=null){
+        setStation(getStationLoop(data));
+    }},[data]); //data값이 수정되면 그 데이터값으로 station을 구함
+
+    useEffect(()=>{if(station!=null){console.log(station);}}, [station]); //station이 변하면 출력
+
+    function getStationLoop(data){
+        let ment;
+
+        for(let y=0; y<data.size; y++){
+            if(data[y].upLine==0) continue;
+            if(data[y].directAt==0) continue;
+
+            const nowStationName=data[y].statnNm;
+            const nowStationId=data[y].statnId;
+            const leastStationNum=nowStationId-myStationId;
+
+            ment+=`${nowStationName}역에 기차가 있습니다. ${leastStationNum}정거장 남았습니다.`;
+        }
+        return ment;
+    }
+
+
+
+    return(<>
+        
+    </>);
 }
 
 export {Checkboxes, Api}
