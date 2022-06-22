@@ -1,4 +1,5 @@
 import {useEffect, useState, memo, React} from "react";
+import ReactDOM from "react-dom";
 import YouTube from "react-youtube";
 import style from "./css/style.css";
 
@@ -150,7 +151,7 @@ function Weather(){
     const getData = async()=>{
         const API_key="630b5303f9175771e71dd96d35fa650c";
         const utc =  Math.floor(new Date().getTime() / 1000);
-        console.log(new Date().getDate(), new Date().getTime());
+        //console.log(new Date().getDate(), new Date().getTime());
         const lat=geo[0];
         const lon=geo[1];
         const start=utc-86400;
@@ -188,7 +189,46 @@ function Todolist(){
     //1.input button을 누를 때마다 list를 변화시키는 state
     //2.list가 변화할 때마다 storage를 변화시키는 state
     //+별도로 checkbox를 누를 때마다 list에서 해당 인덱스를 삭제
-    return ("todolist");
+
+    //react에서는 dom을 건드리면 안 됨~~!
+
+    const storage=String(window.localStorage.getItem("Todolist"));
+
+    const [todos, setTodos]=useState(storage==null ? new Array() : storage.split(", "));
+    const [todo, setTodo]=useState("");
+
+    useEffect(() => {setTodos((x)=>x!="" ? [...x, todo] : [todo])},[todo]);
+    useEffect(() => { window.localStorage.setItem("Todolist", todos)}, [todos]); //todo가 수정될 때마다 localstorage가 수정됨
+
+    const EnterKey=(e)=>{
+        if (e.key == 'Enter') {
+            const text=e.target.value;
+            setTodo((x)=>x=text);
+            e.target.value="";
+        }
+    }
+
+    const deleteCheckbox=(e)=>{
+        const delIndex=e.target.value;
+        setTodos((x)=>{
+            const newTodos=x.slice(0,delIndex).concat(x.slice(delIndex))
+            console.log(newTodos);
+            x=newTodos;
+        });
+    }
+    let index=0;
+    return (
+    <> 
+  <input type="text" onKeyPress={EnterKey} />
+    <ul>
+        {console.log(todos)}
+       {todos.map((x)=>x!="" ? <li className="todos" key={index}>{x }
+       <input type="checkbox" onChange={deleteCheckbox} value={index++}/></li>: "")}
+
+   </ul>
+    
+    </>
+    );
 }
 
 
@@ -209,7 +249,7 @@ function Subway(){
        // setInterval(()=>getData(), 30000);
     },[loading]); //로딩 시작시 1분마다 data가져옴
     useEffect(()=>{if(data!=null){setTimes(getStationLoop(data));}},[data]); //data가 변할 때마다 times update
-    useEffect(()=>{console.log(times);}, [times]); //times가 변할 때마다 콘솔 출력 test
+   // useEffect(()=>{console.log(times);}, [times]); //times가 변할 때마다 콘솔 출력 test
 
     function getStationLoop(data){
         let arvlMsgList=[];
@@ -232,7 +272,8 @@ function Subway(){
         if(times=="") {return false};
         return(
             <>
-                {times.map((x)=>`${x}`)}
+                노들역:
+                {times.map((x)=>`다음 기차는 ${x} 후 도착합니다.`)}
             </>
         )
     }
