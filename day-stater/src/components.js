@@ -91,9 +91,6 @@ function Weather(){
             getData().then((res)=>setWeathers(res));
         }
         },[geo]); //geo가 변경되면 해당 geo값으로 data를 가져와 weathers를 변경
-    useEffect(()=>{},[weathers])
-    //weathers가 바뀌었을 때 weatherdiv가 만들어진다
-
 
     function Weatherdiv(){
         if(weathers=="") {return false;}
@@ -153,6 +150,7 @@ function Weather(){
     const getData = async()=>{
         const API_key="630b5303f9175771e71dd96d35fa650c";
         const utc =  Math.floor(new Date().getTime() / 1000);
+        console.log(new Date().getDate(), new Date().getTime());
         const lat=geo[0];
         const lon=geo[1];
         const start=utc-86400;
@@ -197,47 +195,50 @@ function Todolist(){
 function Subway(){
 
     const [data, setData]=useState();
-    const [station, setStation]=useState();
+    const [times, setTimes]=useState("");
+    const [loading, setLoading] = useState(true);
     const myStationName="노들";
-    const myStationId=1009000918;
 
     const API_KEY="6c4e6c7763303530313130664d4b6b57";
-    const URL=`http://swopenAPI.seoul.go.kr/api/subway/${API_KEY}/json/realtimePosition/0/5/9호선`
+    const URL=`http://swopenAPI.seoul.go.kr/api/subway/${API_KEY}/json/realtimeStationArrival/0/10/${myStationName}`
     //1.해당 시간의 값을 가져옴
     //2.1분마다 api를 새로 가져옴
-
-    useEffect(()=>{getData()},[]);
-    const getData=async()=>{
-        const data=(await (await fetch(URL)).json()).realtimePositionList;
-        setData(data);
-    } //fetch로 data의 값을 1회만 수정
-
-    useEffect(()=>{if(data!=null){
-        setStation(getStationLoop(data));
-    }},[data]); //data값이 수정되면 그 데이터값으로 station을 구함
-
-    useEffect(()=>{if(station!=null){console.log(station);}}, [station]); //station이 변하면 출력
+    useEffect(()=>{load()}, []); //loading은 1회만
+    useEffect(()=>{
+        getData(); 
+       // setInterval(()=>getData(), 30000);
+    },[loading]); //로딩 시작시 1분마다 data가져옴
+    useEffect(()=>{if(data!=null){setTimes(getStationLoop(data));}},[data]); //data가 변할 때마다 times update
+    useEffect(()=>{console.log(times);}, [times]); //times가 변할 때마다 콘솔 출력 test
 
     function getStationLoop(data){
-        let ment;
-
-        for(let y=0; y<data.size; y++){
-            if(data[y].upLine==0) continue;
-            if(data[y].directAt==0) continue;
-
-            const nowStationName=data[y].statnNm;
-            const nowStationId=data[y].statnId;
-            const leastStationNum=nowStationId-myStationId;
-
-            ment+=`${nowStationName}역에 기차가 있습니다. ${leastStationNum}정거장 남았습니다.`;
+        let arvlMsgList=[];
+        for(let y=0; y<data.length; y++){
+            if(data[y].updnLine==="상행"){
+                arvlMsgList.push(data[y].arvlMsg2.split(" ")[0]);
+            }
         }
-        return ment;
+        return arvlMsgList;
     }
 
+    const load =async()=> {setLoading(false); }
 
+    const getData=async()=>{
+        const data=(await (await fetch(URL)).json()).realtimeArrivalList;
+        setData(data);
+    } 
+
+    function Subwaydiv(){
+        if(times=="") {return false};
+        return(
+            <>
+                {times.map((x)=>`${x}`)}
+            </>
+        )
+    }
 
     return(<>
-        
+            {loading ?  "" : <Subwaydiv/>}
     </>);
 }
 
