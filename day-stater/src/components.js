@@ -1,8 +1,8 @@
 import {useEffect, useState, memo, React} from "react";
 import ReactDOM from "react-dom";
-import YouTube from "react-youtube";
 import style from "./css/style.css";
 
+//async사용한 부분 try catch추가하기
 const Apis=[['Youtube', <Youtube/>], ['Weather',<Weather/>], ['Todolist',<Todolist/>], ['Subway',<Subway/>]];
 
 function Checkboxes(){
@@ -47,7 +47,12 @@ function Api(){
 function Youtube(){
     //1.특정 공개된 플레이리스트를 가져옴
     //2.정지된 상태로 가져와 플레이리스트를 자동연속재생하도록 설정
-      
+    const API_KEY="AIzaSyCHZR3vYLQs69URyNPotBeWeeyrSafT4yk";
+    const Playlist="PL436qxW-X8dcmeQQVOVwDyIufW5_Ksgrm";
+    const URL=`https://www.googleapis.com/youtube/?${Playlist}`;
+
+
+
       
 }
 
@@ -180,7 +185,7 @@ function Weather(){
 
 
 function Todolist(){
-    //엔터키를 치면, 리스트에 해당 input 저장
+    //엔터키를 치면, 리스트에 해당 input 저장 -> OK
     //추가된 input은 더블클릭시 수정가능
     //체크시 background색이 변한뒤 사라지는 애니메이션 + 리스트에서 내용 수정
     //리스트가 수정될 때마다 웹스토리지값이 변화
@@ -190,40 +195,64 @@ function Todolist(){
     //2.list가 변화할 때마다 storage를 변화시키는 state
     //+별도로 checkbox를 누를 때마다 list에서 해당 인덱스를 삭제
 
-    //react에서는 dom을 건드리면 안 됨~~!
+    //react에서는 dom을 건드리면 안 됨.
 
-    const storage=String(window.localStorage.getItem("Todolist"));
 
-    const [todos, setTodos]=useState(storage==null ? new Array() : storage.split(", "));
+
+    let storage=window.localStorage.getItem("Todolist");
+    const [todos, setTodos]=useState(storage==null ? new Array():storage.split(","));
     const [todo, setTodo]=useState("");
 
-    useEffect(() => {setTodos((x)=>x!="" ? [...x, todo] : [todo])},[todo]);
+    useEffect(
+        () => {
+            if(todo!=""){
+                //불변성 유지: 리액트에서는 set을 통하지 않고 state를 직접 수정해서는 안 됨 -> concat사용
+                setTodos((x)=>x.join("/")=="" ?  [todo] : x.concat([todo]));
+            }},[todo]);
+
     useEffect(() => { window.localStorage.setItem("Todolist", todos)}, [todos]); //todo가 수정될 때마다 localstorage가 수정됨
 
     const EnterKey=(e)=>{
-        if (e.key == 'Enter') {
-            const text=e.target.value;
+        const text=e.target.value;
+        if (e.key == 'Enter' && text!="") {
             setTodo((x)=>x=text);
             e.target.value="";
         }
     }
 
     const deleteCheckbox=(e)=>{
-        const delIndex=e.target.value;
-        setTodos((x)=>{
-            const newTodos=x.slice(0,delIndex).concat(x.slice(delIndex))
-            console.log(newTodos);
-            x=newTodos;
-        });
+        const delIndex=parseInt(e.target.value);
+        //splice의 return값은 삭제된 부분이므로, 2개의 slice를 concat하여 새 array만들기
+        setTimeout(function(){setTodos((x)=>((x.slice(0,delIndex)).concat(x.slice(delIndex+1))))}, 150);
+
     }
+
+    const editTodoStart=(e)=>{
+        e.target.readOnly=false;
+        e.value
+    }
+
+    const editTodoEnd=(e)=>{
+        const editText=e.target.value;
+
+        if (e.key == 'Enter' && editText!="") {
+
+            e.target.readOnly=true;
+        }
+    }
+
     let index=0;
+    
     return (
     <> 
-  <input type="text" onKeyPress={EnterKey} />
+     <input type="text" onKeyPress={EnterKey} />
     <ul>
-        {console.log(todos)}
-       {todos.map((x)=>x!="" ? <li className="todos" key={index}>{x }
-       <input type="checkbox" onChange={deleteCheckbox} value={index++}/></li>: "")}
+        
+       {todos.map((x)=>x!="" ? <li className="todos" key={index}>
+        <input type="text" value={x} readOnly={true} onDoubleClick={editTodoStart}  onKeyPress={editTodoEnd}/>
+    <input type="checkbox" onChange={deleteCheckbox} value={index++} checked={false}/>
+    </li>: "")
+    }
 
    </ul>
     
@@ -246,7 +275,7 @@ function Subway(){
     useEffect(()=>{load()}, []); //loading은 1회만
     useEffect(()=>{
         getData(); 
-       // setInterval(()=>getData(), 30000);
+       // setInterval(()=>getData(), 30000);  실제 배포시에는 이거 풀어야 해~~!!!!!
     },[loading]); //로딩 시작시 1분마다 data가져옴
     useEffect(()=>{if(data!=null){setTimes(getStationLoop(data));}},[data]); //data가 변할 때마다 times update
    // useEffect(()=>{console.log(times);}, [times]); //times가 변할 때마다 콘솔 출력 test
@@ -273,7 +302,7 @@ function Subway(){
         return(
             <>
                 노들역:
-                {times.map((x)=>`다음 기차는 ${x} 후 도착합니다.`)}
+                {times.map((x)=>`다음 기차까지 남은 시간: ${x}`)}
             </>
         )
     }
