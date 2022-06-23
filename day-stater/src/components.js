@@ -50,22 +50,37 @@ function Youtube(){
     //2.정지된 상태로 가져와 플레이리스트를 자동연속재생하도록 설정
     const API_KEY="AIzaSyCHZR3vYLQs69URyNPotBeWeeyrSafT4yk";
     const PlaylistId="PL436qxW-X8dcmeQQVOVwDyIufW5_Ksgrm";
-    const url=`https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${PlaylistId}&maxResults=50&key=${API_KEY}`
+    const url=`https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${PlaylistId}&maxResults=1&key=${API_KEY}`
 
-    const [playlist, setPlaylist]=useState();
+    const [loading, setLoading]=useState(true);
+    const [playlist, setPlaylist]=useState(null);
 
     useEffect(()=>{getData()}, []);
-    useEffect(()=>{},[playlist]);
+    useEffect(()=>{Playlistdiv()},[playlist]);
 
     const getData=async()=>{
         const data=await(await fetch(url)).json();
-        console.log(data);
+        setPlaylist(data.items[0]);
+        setLoading(false);
+    }
+
+    const Playlistdiv=()=>{
+        if(playlist!=null){
+            return( 
+            <div className="playlist">
+                <h1>{playlist.snippet.localized.title}</h1>
+                <iframe id="ytplayer" type="text/html" width="720" height="405"
+                src="https://www.youtube.com/embed/?listType=playlist&list=PL436qxW-X8dcmeQQVOVwDyIufW5_Ksgrm"
+                frameborder="0" allowfullscreen/>
+                </div>
+            )
+        }
+        return(<></>)
     }
 
     return(
         <>
-
-
+            <Playlistdiv />
         </>
     )
 
@@ -256,16 +271,14 @@ function Todolist(){
         }
     }
 
-    let index=0;
-    
     return (
     <> 
      <input type="text" onKeyPress={EnterKey} />
     <ul>
         
-       {todos.map((x)=>x!="" ? <li className="todos" key={index}>
+       {todos.map((x, idx)=>x!="" ? <li className="todos" key={idx}>
         <input type="text" value={x} readOnly={true} onDoubleClick={editTodoStart}  onKeyPress={editTodoEnd}/>
-    <input type="checkbox" onChange={deleteCheckbox} value={index++} checked={false}/>
+    <input type="checkbox" onChange={deleteCheckbox} value={idx} checked={false}/>
     </li>: "")
     }
 
