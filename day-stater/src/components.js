@@ -1,6 +1,7 @@
 import {useEffect, useState, memo, React} from "react";
 import ReactDOM from "react-dom";
 import style from "./css/style.css";
+import { YouTube } from 'react-youtube';
 
 //async사용한 부분 try catch추가하기
 const Apis=[['Youtube', <Youtube/>], ['Weather',<Weather/>], ['Todolist',<Todolist/>], ['Subway',<Subway/>]];
@@ -48,10 +49,25 @@ function Youtube(){
     //1.특정 공개된 플레이리스트를 가져옴
     //2.정지된 상태로 가져와 플레이리스트를 자동연속재생하도록 설정
     const API_KEY="AIzaSyCHZR3vYLQs69URyNPotBeWeeyrSafT4yk";
-    const Playlist="PL436qxW-X8dcmeQQVOVwDyIufW5_Ksgrm";
-    const URL=`https://www.googleapis.com/youtube/?${Playlist}`;
+    const PlaylistId="PL436qxW-X8dcmeQQVOVwDyIufW5_Ksgrm";
+    const url=`https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${PlaylistId}&maxResults=50&key=${API_KEY}`
+
+    const [playlist, setPlaylist]=useState();
+
+    useEffect(()=>{getData()}, []);
+    useEffect(()=>{},[playlist]);
+
+    const getData=async()=>{
+        const data=await(await fetch(url)).json();
+        console.log(data);
+    }
+
+    return(
+        <>
 
 
+        </>
+    )
 
       
 }
@@ -229,7 +245,6 @@ function Todolist(){
 
     const editTodoStart=(e)=>{
         e.target.readOnly=false;
-        e.value
     }
 
     const editTodoEnd=(e)=>{
