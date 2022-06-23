@@ -15,3 +15,13 @@ li{
     display: flex;
 
 }
+
+.apiList{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.api{
+    margin: 10px;
+}

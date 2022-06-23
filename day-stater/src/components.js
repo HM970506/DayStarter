@@ -1,9 +1,8 @@
-import {useEffect, useState, memo, React} from "react";
-import ReactDOM from "react-dom";
+import {useEffect, useState, React} from "react";
 import style from "./css/style.css";
-import { YouTube } from 'react-youtube';
 
 //async사용한 부분 try catch추가하기
+//fetch를 axios로 바꾸기
 const Apis=[['Youtube', <Youtube/>], ['Weather',<Weather/>], ['Todolist',<Todolist/>], ['Subway',<Subway/>]];
 
 function Checkboxes(){
@@ -48,6 +47,7 @@ function Api(){
 function Youtube(){
     //1.특정 공개된 플레이리스트를 가져옴
     //2.정지된 상태로 가져와 플레이리스트를 자동연속재생하도록 설정
+    //3.창 크기에 따라 영상 비율 resizing
     const API_KEY="AIzaSyCHZR3vYLQs69URyNPotBeWeeyrSafT4yk";
     const PlaylistId="PL436qxW-X8dcmeQQVOVwDyIufW5_Ksgrm";
     const url=`https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${PlaylistId}&maxResults=1&key=${API_KEY}`
@@ -71,7 +71,7 @@ function Youtube(){
                 <h1>{playlist.snippet.localized.title}</h1>
                 <iframe id="ytplayer" type="text/html" width="720" height="405"
                 src="https://www.youtube.com/embed/?listType=playlist&list=PL436qxW-X8dcmeQQVOVwDyIufW5_Ksgrm"
-                frameborder="0" allowfullscreen/>
+                frameBorder="0"/>
                 </div>
             )
         }
@@ -80,7 +80,7 @@ function Youtube(){
 
     return(
         <>
-            <Playlistdiv />
+            {loading ? "" :<Playlistdiv />}
         </>
     )
 
@@ -227,12 +227,47 @@ function Todolist(){
     //+별도로 checkbox를 누를 때마다 list에서 해당 인덱스를 삭제
 
     //react에서는 dom을 건드리면 안 됨.
-
+    //input value값 수정시 해당값 고정이므로 각 list마다 value를 가지는 usestate를 만들어주어야 함.
 
 
     let storage=window.localStorage.getItem("Todolist");
     const [todos, setTodos]=useState(storage==null ? new Array():storage.split(","));
     const [todo, setTodo]=useState("");
+
+    const Todo=(props)=>{
+        const [value, setValue]=useState(props.firstValue);
+        const editTodoStart=(e)=>{
+            e.target.readOnly=false;
+            setValue(e.target.value);
+        }
+    
+        const editTodoEnd=(e)=>{
+
+    
+            if (e.key == 'Enter') {
+                const editText=e.target.value;
+                if(editText==""){
+                    setValue(props.firstValue);
+                }
+                else {
+                const editIndex=props.idx;
+                const newtodos=(todos.concat([]));
+
+            newtodos[editIndex]=editText;
+               setTodos((x)=>newtodos);
+                }
+                e.target.readOnly=true;
+            }
+        }
+
+        const onchange=(e)=>{
+            setValue(e.target.value);
+        }
+    
+        return(
+            <input type="text" value={value} readOnly={true} onChange={onchange} onDoubleClick={editTodoStart} key={props.idx} onKeyPress={editTodoEnd}/>
+        )
+    }
 
     useEffect(
         () => {
@@ -258,27 +293,14 @@ function Todolist(){
 
     }
 
-    const editTodoStart=(e)=>{
-        e.target.readOnly=false;
-    }
-
-    const editTodoEnd=(e)=>{
-        const editText=e.target.value;
-
-        if (e.key == 'Enter' && editText!="") {
-
-            e.target.readOnly=true;
-        }
-    }
-
     return (
     <> 
      <input type="text" onKeyPress={EnterKey} />
     <ul>
         
        {todos.map((x, idx)=>x!="" ? <li className="todos" key={idx}>
-        <input type="text" value={x} readOnly={true} onDoubleClick={editTodoStart}  onKeyPress={editTodoEnd}/>
-    <input type="checkbox" onChange={deleteCheckbox} value={idx} checked={false}/>
+             <Todo firstValue={x} idx={idx}/>
+         <input type="checkbox" onChange={deleteCheckbox} value={idx} checked={false}/>
     </li>: "")
     }
 
