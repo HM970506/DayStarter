@@ -1,11 +1,11 @@
 import {useEffect, useState, React} from "react";
 import style from "./css/style.css";
 
-//async사용한 부분 try catch추가하기
-//fetch를 axios로 바꾸기
-const Apis=[['Youtube', <Youtube/>], ['Weather',<Weather/>], ['Todolist',<Todolist/>], ['Subway',<Subway/>]];
+
+const Apis=[['Weather',<Weather/>], ['Subway',<Subway/>],['Todolist',<Todolist/>], ['Youtube', <Youtube/>]];
 
 function Checkboxes(){
+
     //중괄호 내에는 변수, 함수만 넣을 수 있음!
     return(
         <div className="checkboxes">
@@ -35,10 +35,13 @@ function Checkbox({apiname}){
 
 }
 
+
+
 function Api(){
+    
     return(
-        <div className="apiList">
-            { Apis.map((array)=><div key={array[0]+"div"} className="api apiShow" id={array[0]} > {array[1]} </div>)}
+        <div className="apiList container">
+            { Apis.map((array)=><div key={array[0]+"div"} className="item apiShow" id={array[0]} > {array[1]} </div>)}
         </div>
     )
 }
@@ -59,20 +62,27 @@ function Youtube(){
     useEffect(()=>{Playlistdiv()},[playlist]);
 
     const getData=async()=>{
-        const data=await(await fetch(url)).json();
+        try{const data=await(await fetch(url)).json();
         setPlaylist(data.items[0]);
-        setLoading(false);
+        setLoading(false);}
+        catch{
+            console.error("Failed get Youtube Data");
+        }
     }
 
     const Playlistdiv=()=>{
         if(playlist!=null){
             return( 
-            <div className="playlist">
-                <h1>{playlist.snippet.localized.title}</h1>
+            <div className="apiframe">
+                <div className="playlist">
+                <h3>{playlist.snippet.localized.title}</h3>
+                <div className="video-wrap">
                 <iframe id="ytplayer" type="text/html" width="720" height="405"
                 src="https://www.youtube.com/embed/?listType=playlist&list=PL436qxW-X8dcmeQQVOVwDyIufW5_Ksgrm"
                 frameBorder="0"/>
                 </div>
+                </div>
+            </div>
             )
         }
         return(<></>)
@@ -87,10 +97,10 @@ function Youtube(){
       
 }
 
-const Cloth=["민소매, 반팔, 반바지", "반팔, 얇은 셔츠, 면바지",
-"얇은 가디건, 청바지", "얇은 니트, 맨투맨, 가디건", "자켓, 가디건, 스타킹",
-"자켓, 트렌치코트, 니트", "코트, 히트택, 니트",
-"패딩, 코트, 목도리"];
+const Cloth=["민소매, 반바지", "반팔, 얇은 셔츠",
+"얇은 가디건, 청바지", "얇은 니트, 맨투맨", "자켓, 스타킹",
+"트렌치코트, 니트", "코트, 히트택",
+"패딩, 목도리"];
 
 class DayWeather{
     constructor(temp, humidity, weather){
@@ -135,16 +145,42 @@ function Weather(){
         const gapTemp=weathers[0].getTemp()-weathers[1].getTemp();
         const clothIndex=whatCloth(todayTemp);
         const todaySky=weathers[0].getWeather();
-        const todayHumidity=weathers[0].getHumidity()-weathers[1].getHumidity();
+        const todayHumidity=weathers[0].getHumidity();
 
-        const ment1=`오늘 기온은 ${todayTemp}도 입니다. ${Cloth[clothIndex]}을(를) 추천합니다.`;
-        const ment2=gapTemp>0 ? `어제보다 ${gapTemp}도 덥습니다.`: `어제보다 ${-gapTemp}도 춥습니다.`;
-        const ment3=todaySky=="Rain" ? "\n우산을 챙기세요!" : "";
-        const ment4=todayHumidity>0 ? "어제보다 습합니다.": "어제보다 건조합니다.";
 
         return (
-            <>{`${ment1}\n${ment2}\n${ment3}\n${ment4}`}</>
+            <div id="weatherframe">
+                <div><div className="center"><WeatherIcon value={todaySky}/></div><div className="center"><h3>{todayTemp}℃</h3></div></div>
+                <div><h4>추천 복장</h4><div>{Cloth[clothIndex]}</div><Discomport humidity={todayHumidity} tempurture={todayTemp}/></div>
+            </div>
         )
+    }
+
+    const Discomport=(props)=>{
+        const hum=props.humidity;
+        const temp=props.tempurture;
+        const discomportIndex= 9/5*temp-0.55*(1-hum)*(9/5*temp-26)+32
+        console.log(temp, hum,discomportIndex );
+
+        switch(discomportIndex){
+            case(discomportIndex<=68 && temp<=20): return (<div>쾌적한 날씨입니다!</div>);
+            case(discomportIndex<=70 && temp<=21): return (<div>불쾌지수가 낮습니다.</div>);
+            case(discomportIndex<=80 && temp<=26.5): return (<div>불쾌지수는 보통입니다.</div>);
+            case(discomportIndex<=83 && temp<=28.5): return (<div>불쾌지수가 높습니다.</div>);
+            default: return (<div>불쾌지수가 매우 높습니다!</div>)
+        }
+    }
+
+    const WeatherIcon=(props)=>{
+        switch(String(props.value)[0]){
+            case "2": return (<i className="material-icons">thunderstorm</i>)
+            case "3":
+            case "5": return (<i className="material-icons turn">beach_access</i>)
+            case "6": return (<i className="material-icons turn"> ac_unit</i>)
+            case "7": return (<i className="material-icons">foggy </i>)
+            case "8": return (<i className="material-icons turn">sunny</i>)
+            default: return (<i className="material-icons">question_mark</i>)
+        }
     }
 
     
@@ -161,19 +197,26 @@ function Weather(){
 
 
     const getWeather=async(url, now)=>{
+        try{
         const data=await (await fetch(url)).json();
         let day=now=="today" ? data : data.list[0];
         const temp= KtoC(day.main.temp_max); 
         const humidity=day.main.humidity;
-        const weather=(day.weather)[0].main;
+        const weather=(day.weather)[0].id;
         return new DayWeather(temp, humidity, weather);
+        }catch{
+            console.error("Failed get Weather Data");
+        }
     }
 
     const onGeoOk=async(position)=> {
-
+        try{
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         setGeo([lat, lon]);
+        }catch{
+            console.error("Failed get Geometric Data");
+        }
        
     }
     function onGeoError() {
@@ -185,6 +228,7 @@ function Weather(){
     }
 
     const getData = async()=>{
+        try{
         const API_key="630b5303f9175771e71dd96d35fa650c";
         const utc =  Math.floor(new Date().getTime() / 1000);
         //console.log(new Date().getDate(), new Date().getTime());
@@ -198,11 +242,18 @@ function Weather(){
         const yesterdayWeather =  await getWeather(yesterURL, "yesterday");
 
         return [todayWeather, yesterdayWeather];
+        }        catch{
+            console.error("Failed get Tempurture Data");
+        }
     }
 
     const load =async()=> {
+       try{
         navigator.geolocation.getCurrentPosition(onGeoOk, onGeoError);
-        setLoading(false);
+        setLoading(false);}
+        catch{
+            console.error("Failed Make WeatherApi");
+        }
     }
 
 
@@ -265,7 +316,7 @@ function Todolist(){
         }
     
         return(
-            <input type="text" value={value} readOnly={true} onChange={onchange} onDoubleClick={editTodoStart} key={props.idx} onKeyPress={editTodoEnd}/>
+            <textarea className="todo" type="text" value={value} readOnly={true} onChange={onchange} onDoubleClick={editTodoStart} key={props.idx} onKeyPress={editTodoEnd}/>
         )
     }
 
@@ -294,7 +345,7 @@ function Todolist(){
     }
 
     return (
-    <> 
+    <div className="apiframe" id="todolistframe"> 
      <input type="text" onKeyPress={EnterKey} />
     <ul>
         
@@ -306,7 +357,7 @@ function Todolist(){
 
    </ul>
     
-    </>
+    </div>
     );
 }
 
@@ -340,20 +391,24 @@ function Subway(){
         return arvlMsgList;
     }
 
-    const load =async()=> {setLoading(false); }
+    const load =()=> {setLoading(false); }
 
     const getData=async()=>{
+        try{
         const data=(await (await fetch(URL)).json()).realtimeArrivalList;
         setData(data);
+        }        catch{
+            console.error("Failed get Subway Data");
+        }
     } 
 
-    function Subwaydiv(){
-        if(times=="") {return false};
+    const Subwaydiv=()=>{
+        if(times=="") {return (<></>)};
         return(
-            <>
-                노들역:
-                {times.map((x)=>`다음 기차까지 남은 시간: ${x}`)}
-            </>
+            <div>
+                <h3>노들역</h3>
+                {times.map((x, idx)=><div key={idx}>{`다음 기차까지 남은 시간: ${x}`}</div>)}
+            </div>
         )
     }
 

@@ -1,10 +1,44 @@
-.api{
+@import url('https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Nanum+Myeongjo:wght@700&display=swap');
+:root {
+    --primary-light: #8abdff;
+    --primary: #6b60e1;
+    --primary-light: #8279ed;
+    
+    --white: #FFFFFF;
+    --greyLight-1: #E4EBF5;
+    --greyLight-2: #c8d0e7;
+    --greyLight-3: #bec8e4;
+    --greyDark: #9baacf;
+  }
+
+div{
+    margin: 10px;
+    color: var(--greyDark);
+}
+
+input, textarea{
+    background-color: inherit;
+}
+
+textarea{
+    color:inherit;
+    font-weight: bolder;
+}
+
+h3{
+    color: var(--primary);
+    font-weight: 500;
+    margin-left: 5px;
+    margin-bottom:0px;
+    font-family: 'Do Hyeon', sans-serif;
+    letter-spacing: 2px;
+}
+
+.item{
     border:1px black solid;
     height: 100px;
     width: 200px;
-}
-.apiHyde{
-    display:none;
+    margin: 10px;
 }
 
 .apiShow{
@@ -16,12 +50,162 @@ li{
 
 }
 
-.apiList{
+.container{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 2fr;
+    height: 500px;
+    grid-auto-flow:dense;
+}
+
+.apiframe{
+    width: 100%;
+
+}
+.api{
+    border-radius: 10px;
+    background-color: --primary-light;
+    display: flex;
+    justify-content: center;
+    background-color: white;
+    box-shadow: 0.3rem 0.3rem 0.6rem var(--greyLight-2), -0.2rem -0.2rem 0.5rem var(--white);
+    transition: 0.5s;
+}
+
+#Todolist{
+    grid-column-start: 3;
+    grid-row: auto / span 2
+}
+
+#Youtube{
+    grid-row-start: 2;
+    grid-column: auto / span 2
+}
+
+#Weather{
+    grid-column: auto / span 1;
+}
+
+#weatherframe{
+    display: flex;
+}
+
+#Subway{
+    grid-column: auto / span 1;
+}
+
+.itemBig{
+    grid-column: auto / span 2;
+}
+
+input{
+    border:none;
+    border-bottom: 1px solid black;
+}
+
+input:focus{
+    outline: none;
+}
+
+.todo{
+    border:none;
+    width: 200px;
+    resize: none;
+}
+
+.video-wrap {
+    position:relative; 
+    padding-bottom:56.25%; 
+    padding-top:30px;
+     height:0; 
+     overflow:hidden;
+    }
+.video-wrap iframe,
+.video-wrap object,
+.video-wrap embed
+{
+    position:absolute; 
+    top:0; 
+    left:0; 
+    width:100%; 
+    height:100%;
+}
+
+.checkboxes{
+    width: 15px;
+    height: 15px;
+    border-radius: 20px;
+   
+    z-index: 10;
+    position: fixed;
+    padding:5px;
+
+    background-color: var(--greyLight-3);
+    color:var(--greyLight-3);
+    top:20px;
+    left:20px;
+    overflow: hidden;
+    transition: all 0.4s;
+    box-shadow: 0.3rem 0.3rem 0.6rem var(--greyLight-2), -0.2rem -0.2rem 0.5rem var(--greyLight-2);
+}
+
+.checkboxes:hover{
+    border-radius: 20px;
+    color:white;
+    width: 100px;
+    height: 120px;
+}
+
+body{
+    background-color: var( --greyLight-1);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin:0;
+    padding:0;
+    font-family: 'Nanum Myeongjo', serif;
+}
+
+ul{
+    list-style: none;
+    padding-left: 10px;
+}
+
+.apiHyde{
+    display:none;
+}
+
+.material-icons{
+    font-size: 50px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+.turn{
+    animation: turning 10s linear infinite;
+}
+
+@keyframes turning{
+	from {transform: rotate(0deg);}
+	to {transform: rotate(-360deg);}
+}
+
+.center{
+    padding:0;
+    margin:0;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.api{
-    margin: 10px;
+h4{
+    padding:0;
+    margin:0;
+    margin-top:5px;
+    font-weight: 200;
+    color:var(--primary-light);
+    font-family: 'Do Hyeon', sans-serif;
 }
