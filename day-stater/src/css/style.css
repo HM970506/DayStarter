@@ -77,6 +77,10 @@ li{
     grid-row: auto / span 2
 }
 
+#todolistframe{
+    padding:5px;
+}
+
 #Youtube{
     grid-row-start: 2;
     grid-column: auto / span 2
@@ -103,7 +107,7 @@ input{
     border-bottom: 1px solid black;
 }
 
-input:focus{
+input:focus, textarea:focus{
     outline: none;
 }
 
@@ -111,6 +115,8 @@ input:focus{
     border:none;
     width: 200px;
     resize: none;
+    max-height: 1rem;
+    margin-bottom: 5px;
 }
 
 .video-wrap {
@@ -208,4 +214,8 @@ h4{
     font-weight: 200;
     color:var(--primary-light);
     font-family: 'Do Hyeon', sans-serif;
+}
+
+.todo::-webkit-scrollbar{
+    visibility: hidden;
 }
