@@ -23,9 +23,9 @@ input, textarea{
 textarea{
     color:inherit;
     font-weight: bolder;
-    height: inherit;
     overflow:hidden;
     resize:none;
+    border:none;
 }
 
 h3{
@@ -38,7 +38,6 @@ h3{
 }
 
 .item{
-    border:1px black solid;
     height: 100px;
     width: 200px;
     margin: 10px;
@@ -47,6 +46,7 @@ h3{
 
 li{
     display: flex;
+    height: auto;
 }
 
 .container{

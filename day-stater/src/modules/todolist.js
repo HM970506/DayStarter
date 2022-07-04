@@ -55,6 +55,13 @@ function Todolist(){
 
     countStore.subscribe(()=>{setTodos(countStore.getState())}); //변화가 있을 때마다 감지하여 todos 수정
 
+
+    const reHeight=(e)=>{
+        e.target.style.height='auto';
+        e.target.style.height=e.currentTarget.scrollHeight+"px";
+        e.target.parentNode.style.height=e.target.style.height;
+    }
+
     const useInput=(init)=>{  //input hook
         const [value, setValue] = useState(init);
         const onChange=(e)=>{ //input에 값 입력
@@ -94,8 +101,7 @@ function Todolist(){
         }
 
         const onKeyUp=(e)=>{
-            console.log(e.target.scrollHeight);
-            e.target.parentNode.style.height=e.target.parentNode.scrollHeight+"px";
+            reHeight(e);
         }
     
 
