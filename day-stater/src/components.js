@@ -27,7 +27,7 @@ function Checkbox({apiname}){
 
     useEffect(()=>{
         const div=document.getElementById(apiname);
-        state ? div.className="api apiShow" : div.className="api apiHyde";
+        state ? div.className="api" : div.className="api Hyde";
         }, [state])
 
     return (

@@ -23,6 +23,9 @@ input, textarea{
 textarea{
     color:inherit;
     font-weight: bolder;
+    height: inherit;
+    overflow:hidden;
+    resize:none;
 }
 
 h3{
@@ -41,13 +44,9 @@ h3{
     margin: 10px;
 }
 
-.apiShow{
-    
-}
 
 li{
     display: flex;
-
 }
 
 .container{
@@ -111,13 +110,6 @@ input:focus, textarea:focus{
     outline: none;
 }
 
-.todo{
-    border:none;
-    width: 200px;
-    resize: none;
-    max-height: 1rem;
-    margin-bottom: 5px;
-}
 
 .video-wrap {
     position:relative; 
@@ -179,10 +171,6 @@ ul{
     padding-left: 10px;
 }
 
-.apiHyde{
-    display:none;
-}
-
 .material-icons{
     font-size: 50px !important;
     margin: 0 !important;
@@ -218,4 +206,9 @@ h4{
 
 .todo::-webkit-scrollbar{
     visibility: hidden;
+}
+
+
+.Hyde{
+    display:none;
 }
