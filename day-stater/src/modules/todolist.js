@@ -17,7 +17,7 @@ function Todolist(){
     //value value값 수정시 해당값 고정이므로 각 list마다 value를 가지는 usestate를 만들어주어야 함.
 
     //가능한 여러 훅을 사용해보자!
-    //redux로 todo들의 state를 관리해보자!
+    //redux로 todo들의 state를 관리하여 props drilling을 방지하자!
     //visibility가 false면 인덱스 밀림!!!!! 리랜더해야함!!!
 
 
@@ -95,7 +95,7 @@ function Todolist(){
             if (e.key === 'Enter') {
                 const {target:{value}} = e;
                 if(value==="") setValue(props.firstValue);
-                else modifyTodo(e);
+                else {modifyTodo(e); reHeight(e);}
                 e.target.readOnly=true;
             }
         }
@@ -113,13 +113,12 @@ function Todolist(){
         const input = useTodoInput(props.firstValue);
     
         return(
-            <>
-            <textarea className="todo" type="text" readOnly={true} {...input}/>
-            <input type="checkbox" onChange={deleteTodo} checked={false}/>
-            </>
+            <li className="todos" key={props.idx} idx={props.idx} >
+                <textarea className="todo" type="text" readOnly={true} {...input}/>
+                <input type="checkbox" onChange={deleteTodo} checked={false}/>
+            </li>
         )
     }
-
 
     const addTodo=(e)=>{ countStore.dispatch({type:ADD_TODO, todo:e.target.value, idx:todos.length});}
     const deleteTodo=(e)=>{countStore.dispatch({type:DELETE_TODO, todo:"", idx:parseInt(e.target.parentNode.getAttribute('idx'))});}
@@ -132,14 +131,10 @@ function Todolist(){
     <div className="apiframe" id="todolistframe"> 
         <input type="text" placeholder="todo.." {...input} />
                 <ul>
-                    {todos.map((x, idx)=>x!=="" ?
-                     <li className="todos" key={idx} idx={idx}>
-                        <Todo firstValue={x}/>
-                     </li>: "")
-                     }
-
+                    {todos.map((x, idx)=>x!=="" ? <Todo firstValue={x} idx={idx}/> : "")}
                </ul>
     </div>
     );
 }
 export default Todolist;
+
