@@ -56,11 +56,6 @@ function Todolist(){
     countStore.subscribe(()=>{setTodos(countStore.getState())}); //변화가 있을 때마다 감지하여 todos 수정
 
 
-    const reHeight=(e)=>{
-        e.target.style.height='auto';
-        e.target.style.height=e.currentTarget.scrollHeight+"px";
-        e.target.parentNode.style.height=e.target.style.height;
-    }
 
     const useInput=(init)=>{  //input hook
         const [value, setValue] = useState(init);
@@ -86,39 +81,54 @@ function Todolist(){
             setValue(e.target.value);
         }
 
-        const onChange=(e)=>{ //input에 값 입력
-            const {target:{value}} = e;
-            setValue(value);
+        const changeHeihgt=(e)=>{
+            const height=Math.round(e.currentTarget.scrollHeight/15)+"em"
+            e.target.style.height= height;
         }
-    
+
+        //줄당 스크롤 15씩 변함
+        const onChange=(e)=>{ //input에 값 입력
+            setValue(e.target.value);
+            changeHeihgt(e);
+        }
+
         const onKeyPress=(e)=>{ 
             if (e.key === 'Enter') {
-                const {target:{value}} = e;
-                if(value==="") setValue(props.firstValue);
-                else {modifyTodo(e); reHeight(e);}
-                e.target.readOnly=true;
+                if(e.target.value==="") setValue(props.firstValue);
+                else modifyTodo(e);
             }
         }
 
-        const onKeyUp=(e)=>{
-            reHeight(e);
-        }
-    
 
-        return {value, onDoubleClick, onKeyPress, onKeyUp, onChange}
+
+        return {value, onDoubleClick, onKeyPress, onChange}
 
     }
     
+    //todos내용물이 많아서 줄이 바뀌면 그게 반영되어서 li와 textarea의 크기도 커져야 한다고~~~
+    //만든 이후에 각 스크롤 크기에 맞추는 순회함수를 한번 돌린다면?!?!
+    //안된다.. 순회후에 한번 더 랜더해야하는 구조...
+    //그렇다면 처음부터 내용물에 딱 맞는 크기로 todo가 들어온다면???
+    //textarea의 경우 height: auto; 속성값을 사용하여 자동으로 높이 조절이 되지 않음..!
+    //출력하는 녀석을 input으로 둬서 auto가 적용되게 한다면..?
+    //textarea가 아니면 여러 줄 입력을 받지 못함..!
+    //그렇다면 textarea와 li의 height를 useState로 줘서 실시간 재랜더가 가능하게 하자!
+    //실시간 재랜더라는 아이디어로 높이 조절 함수를 위에걸로 줄일 수 있게 되긴 했는데......
+    //다시 원점으로 돌아왔다.. textarea를 처음에 만들 때부터 height조절이 자동으로 되게 하려면 어떻게 해야 할까
+    //textarea가 아니라 div로 두고, 더블클릭시 해당 div를 지우고 textarea를 두는 것은 어떨까 -> 돔 직접 수정은 위험해!
+    //클릭했을때 수정을 위한 모달창을 띄우면 어떨까 -> 괜찮구만 이걸로 하자 모달창 연습도 할 겸..
+
     const Todo=(props)=>{
         const input = useTodoInput(props.firstValue);
-    
+
         return(
-            <li className="todos" key={props.idx} idx={props.idx} >
+            <li className="todos" key={props.idx} idx={props.idx}>
                 <textarea className="todo" type="text" readOnly={true} {...input}/>
                 <input type="checkbox" onChange={deleteTodo} checked={false}/>
             </li>
         )
     }
+
 
     const addTodo=(e)=>{ countStore.dispatch({type:ADD_TODO, todo:e.target.value, idx:todos.length});}
     const deleteTodo=(e)=>{countStore.dispatch({type:DELETE_TODO, todo:"", idx:parseInt(e.target.parentNode.getAttribute('idx'))});}
