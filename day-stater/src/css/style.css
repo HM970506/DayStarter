@@ -18,16 +18,36 @@ div{
     overflow: hidden;
 }
 
-input, textarea{
+input{
     background-color: inherit;
 }
 
-textarea{
+.todoWrap{
+    border:none;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    height: auto;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.todo{
+    background-color: inherit;
     color:inherit;
     font-weight: bolder;
-    overflow: visible;
-    resize:none;
     border:none;
+    resize:none;
+
+    width: 100%;
+    height: 100%;
+
+    font-size: small;
+    word-break:break-all;
+}
+
+.todo::-webkit-scrollbar{
+    display:none;
 }
 
 h3{
@@ -54,10 +74,11 @@ li{
 
 .container{
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 1fr 2fr;
+    grid-template-columns: repeat(auto-fit, 3, 1fr);
+    grid-template-rows: repeat(auto-fit);
     height: 500px;
     grid-auto-flow:dense;
+
 }
 
 .apiframe{
@@ -207,9 +228,10 @@ h4{
     font-family: 'Do Hyeon', sans-serif;
 }
 
-.todo::-webkit-scrollbar{
-    visibility: hidden;
+.todoCheckbox:hover{
+    cursor: pointer;
 }
+
 
 
 .Hyde{

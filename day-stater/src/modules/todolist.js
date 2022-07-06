@@ -1,6 +1,7 @@
 import {useEffect, useState, React} from "react";
 import {Provider, useDispatch} from 'react-redux';
-import {createStore, createReducer} from '@reduxjs/toolkit'
+import {createStore, createReducer} from '@reduxjs/toolkit';
+import $ from 'jquery';
 
 function Todolist(){
     //엔터키를 치면, 리스트에 해당 value 저장
@@ -56,7 +57,6 @@ function Todolist(){
     countStore.subscribe(()=>{setTodos(countStore.getState())}); //변화가 있을 때마다 감지하여 todos 수정
 
 
-
     const useInput=(init)=>{  //input hook
         const [value, setValue] = useState(init);
         const onChange=(e)=>{ //input에 값 입력
@@ -77,8 +77,7 @@ function Todolist(){
         const [value, setValue] = useState(props);
 
         const onDoubleClick=(e)=>{
-            e.target.readOnly=false;
-            setValue(e.target.value);
+           
         }
 
         const changeHeihgt=(e)=>{
@@ -116,15 +115,24 @@ function Todolist(){
     //실시간 재랜더라는 아이디어로 높이 조절 함수를 위에걸로 줄일 수 있게 되긴 했는데......
     //다시 원점으로 돌아왔다.. textarea를 처음에 만들 때부터 height조절이 자동으로 되게 하려면 어떻게 해야 할까
     //textarea가 아니라 div로 두고, 더블클릭시 해당 div를 지우고 textarea를 두는 것은 어떨까 -> 돔 직접 수정은 위험해!
-    //클릭했을때 수정을 위한 모달창을 띄우면 어떨까 -> 괜찮구만 이걸로 하자 모달창 연습도 할 겸..
+    //클릭했을때 수정을 위한 모달창을 띄우면 어떨까
+    //1.textarea를 div로 수정하기 (height auto, hover pointer) -> 완료
+    //2.모달창 만들기 (z축 100에 주변 검은 그림자 넣은 자동높이조절 textarea. 클릭한 곳 좌표를 받아서 바로 위에 띄우기.)
+    //3.모달창 입력후 엔터를 누르면 해당 idx를 modify후 재랜더.
+
+    //이거 안 햬!! value 글자수랑 전체화면 width를 받아서 height 조절해줄 것!
+
+    //아니면..div로 출력했다가 수정시에만 textarea로 바뀌게 하면 어떨까? (삭제x)
+    //textarea visible을 none으로 했다가 div를 더블클릭했을 때 보이도록..
 
     const Todo=(props)=>{
         const input = useTodoInput(props.firstValue);
 
         return(
             <li className="todos" key={props.idx} idx={props.idx}>
-                <textarea className="todo" type="text" readOnly={true} {...input}/>
-                <input type="checkbox" onChange={deleteTodo} checked={false}/>
+                <div className="todo" type="text" {...input}>{input.value}</div>
+                <textarea className="todo" visible="none" value={input.value} readOnly="true"/>
+                <input className="todoCheckbox" type="checkbox" onChange={deleteTodo} checked={false}/>
             </li>
         )
     }
