@@ -57,12 +57,24 @@ function Todolist({toDos, addToDo, deleteToDo, modifyToDo}){
         return {value, onDoubleClick, onKeyPress, onChange}
 
     }
-// <div className="todo" type="text" {...input}>{input.value}</div>
+
+
+    //내일 할일: 출력은 div, 입력은 textarea로 하게끔 조절하기
+    //1.testarea의 visivle은 숨기고 div로 input을 출력한다
+    //2.input을 더블클릭하면 div를 숨기고 textarea를 보이게 한다
+    //3.수정후 enter를 치면 textarea내용을 토대로 modify하여 리랜더한다
+
+    //삭제했을 때의 애니메이션도 추가하기!
+    //grid로 div 늘리기를 할 방법 고안해보기
+    //checkbox체크값 로컬스토리지 저장하기
+    //따릉이 api를 추가해볼가나?????🤭
+
     const Todo=(props)=>{
         const input = useTodoInput(props.value);
 
         return(
             <li className="todos" key={props.idx} idx={props.idx}>
+                <div className="todo" type="text" {...input}>{input.value}</div>
                 <textarea className="todo" visible="none" {...input} readOnly="true" idx={props.idx}/>
                 <input className="todoCheckbox" type="checkbox" onChange={()=>{deleteToDo(props.idx)}} checked={false}/>
             </li>
