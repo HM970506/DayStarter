@@ -1,10 +1,14 @@
 import {Api, Checkboxes} from "./components.js"
+import { Provider } from "react-redux";
+import store from "./modules/todolist/store";
 
 function App(){
     return(
         <div>
                 <Checkboxes/>
-                <Api/>
+                <Provider store={store}>
+                    <Api/>
+                </Provider>
         </div>
     )
 }
