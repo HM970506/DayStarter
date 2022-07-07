@@ -1,6 +1,6 @@
 import {useEffect, useState, React} from "react";
 import {connect} from 'react-redux';
-import { actionCreators } from "./store.js";
+import { addToDo, deleteToDo, modifyToDo } from "./store.js";
 
 function Todolist({toDos, addToDo, deleteToDo, modifyToDo}){
 
@@ -87,9 +87,9 @@ function mapStateToProps(state) {
   
   function mapDispatchToProps(dispatch, ownProps) {
     return {
-        addToDo: value => dispatch(actionCreators.addToDo(value)),
-        deleteToDo: idx => dispatch(actionCreators.deleteToDo(idx)),
-        modifyToDo: toDo => dispatch(actionCreators.modifyToDo(toDo))
+        addToDo: value => dispatch(addToDo(value)),
+        deleteToDo: idx => dispatch(deleteToDo(idx)),
+        modifyToDo: toDo => dispatch(modifyToDo(toDo))
     };
   }
   
