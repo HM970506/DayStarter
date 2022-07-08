@@ -22,33 +22,6 @@ input{
     background-color: inherit;
 }
 
-.todoWrap{
-    border:none;
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-    height: auto;
-    width: 100%;
-    margin-bottom: 10px;
-}
-
-.todo{
-    background-color: inherit;
-    color:inherit;
-    font-weight: bolder;
-    border:none;
-    resize:none;
-
-    width: 100%;
-    height: 100%;
-
-    font-size: small;
-    word-break:break-all;
-}
-
-.todo::-webkit-scrollbar{
-    display:none;
-}
 
 h3{
     color: var(--primary);
@@ -70,6 +43,7 @@ li{
     display: flex;
     overflow: visible;
     height: auto;
+    width: inherit;
 }
 
 .container{
@@ -193,6 +167,7 @@ body{
 ul{
     list-style: none;
     padding-left: 10px;
+    width: inherit;
 }
 
 .material-icons{
@@ -232,6 +207,33 @@ h4{
     cursor: pointer;
 }
 
+.todoTextarea{
+    z-index: 100;
+
+        background-color: inherit;
+        color:inherit;
+        font-weight: bolder;
+        border:none;
+        resize:none;
+    
+        width: 80%;
+    
+        font-size: small;
+        word-break:break-all;
+    
+    
+}
+.todoDiv{
+    margin:0;
+    padding:0;
+    word-break:break-all;
+    font-size: small;
+    width: 80%;
+}
+
+.todoTextarea::-webkit-scrollbar{
+    display:none;
+}
 
 
 .Hyde{
